@@ -1,0 +1,65 @@
+#!/bin/bash.
+mongod > /dev/null 2>&1 &
+sleep 5
+go run main.go  > /dev/null 2>&1 &
+printf "\nServer starting......\n"
+
+curl -s --location --request POST 'https://ed-5146363240644608.educative.run/movies/createmovie' \
+--header "token: " \
+ --data-raw ''  &> log.txt
+
+while :
+do
+   if grep "Your app refused to connect." < log.txt > waste.txt; then
+	   i=1
+curl -s --location --request POST 'https://ed-5146363240644608.educative.run/movies/createmovie' \
+--header "token: " \
+ --data-raw ''  &> log.txt
+   else
+	break
+   fi
+
+done
+
+curl -s --location --request POST 'https://ed-5146363240644608.educative.run/users/signup' \
+ --data-raw '{
+ "Username":"Bob001", 
+ "Name":"Bob_001", 
+ "Email":"bob@gmail.com", 
+ "Password":"Bob1234",
+ "User_type":"USER"
+ }' &> new.txt
+ curl -s --location --request POST 'https://ed-5146363240644608.educative.run/users/signup' \
+ --data-raw '{
+ "Username":"Alice", 
+ "Name":"Alice_001", 
+ "Email":"alice@gmail.com", 
+ "Password":"Alice123",
+ "User_type":"ADMIN"
+ }' &> new.txt
+
+printf "\nSending Request\n"
+
+
+value=$(curl -s --location --request POST 'https://ed-5146363240644608.educative.run/users/login' \
+ --data-raw '{
+ "Email":"bob001@gmail.com", 
+ "Password":"Bob123"
+ }') &> waste.txt
+
+
+token=$(echo "$value" | jq '.token')
+
+token1=$(echo "$token" | sed -e 's/^"//' -e 's/"$//')
+
+printf "\nSending Request\n"
+curl -s --location --request POST 'https://ed-5146363240644608.educative.run/movies/createmovie' \
+--header "token: $token1" \
+ --data-raw '{
+	"Name":"Genre1",
+	"Topic":"avcdeer",
+	"Genre_id":"1",
+	"Movie_URL":"abcderfrde.com"
+ }' | jq
+
+
